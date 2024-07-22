@@ -221,88 +221,81 @@ def create_signup_page():
     # Clear existing widgets
     clear_window()
 
-    # Sign-up page widgets
-    Label(window, text="Sign Up", font=("Arial", 30)).place(x=450, y=100)
+    # Configure window background color
+    window.configure(bg="black")
 
-    Label(window, text="Username:", font=("Arial", 20)).place(x=300, y=200)
+    # Sign-up page widgets
+    Label(window, text="Sign Up", font=("Arial", 30), fg="white", bg="black").place(x=450, y=100)
+
+    Label(window, text="Username:", font=("Arial", 20), fg="white", bg="black").place(x=300, y=200)
     entry_username = Entry(window, font=("Arial", 20))
     entry_username.place(x=450, y=200)
 
-    Label(window, text="Password:", font=("Arial", 20)).place(x=300, y=250)
+    Label(window, text="Password:", font=("Arial", 20), fg="white", bg="black").place(x=300, y=250)
     entry_password = Entry(window, font=("Arial", 20), show='*')
     entry_password.place(x=450, y=250)
 
-    signup_button = Button(window, text="Sign Up", command=signup, font=("Arial", 20), bg="black", fg="white", borderwidth=3, relief="raised")
+    signup_button = Button(window, text="Login", command=login, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised")
     signup_button.place(x=450, y=300)
+    login_button = Button(window, text="Sign Up", command=signup, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised")
+    login_button.place(x=650, y=300)
 
 # Function to handle sign-up process
 def signup():
-    global entry_username, entry_password
-
-    # Retrieve username and password entered by user
     username = entry_username.get()
     password = entry_password.get()
-
-    # Simulated check for username uniqueness
-    if username == "admin":
-        mbox.showerror("Error", "Username already exists!")
+    if username and password:
+        with open("users.txt", "a") as file:
+            file.write(f"{username},{password}\n")
+        mbox.showinfo("Sign Up", "Sign Up Successful!")
     else:
-        mbox.showinfo("Success", "User registered successfully!")
+        mbox.showerror("Error", "Please fill in both fields")
 
-        # Clear sign-up fields
-        entry_username.delete(0, END)
-        entry_password.delete(0, END)
+# Function to handle login process
+def login():
+    entered_username = entry_username.get()
+    entered_password = entry_password.get()
+    with open("users.txt", "r") as file:
+        users = file.readlines()
+        user_dict = {}
 
-        # Switch to the main application page
-        create_main_application()
+        for entry in users:
+            entry = entry.strip()  # Remove leading/trailing whitespace
+            if entry:  # Ensure the entry is not empty
+                stored_username, stored_password = entry.split(",")  # Split the entry into username and password
+                user_dict[stored_username] = stored_password  # Add to the dictionary
 
-# Function to create main application page
-def create_main_application():
-    clear_window()
+        if entered_username in user_dict and user_dict[entered_username] == entered_password:
+            mbox.showinfo("Success", "Login successful!")
+            show_image_encryption_page()
+        else:
+            mbox.showerror("Error", "Incorrect username or password!")
 
-    # Label for application title
-    start1 = Label(text="Image Encryption Decryption\n using RSA", font=("Arial", 30), fg="black")
-    start1.place(x=310, y=10)
 
-    # Labels for image sections
-    label_original = Label(text="Original\nImage", font=("Arial", 30), fg="black")
-    label_original.place(x=100, y=270)
 
-    label_encrypted = Label(text="Encrypted\nDecrypted\nImage", font=("Arial", 30), fg="black")
-    label_encrypted.place(x=700, y=230)
+  
 
-    # Buttons for actions
-    button_choose = Button(window, text="Choose", command=open_img, font=("Arial", 20), bg="black", fg="white", borderwidth=3, relief="raised")
-    button_choose.place(x=30, y=20)
-
-    button_save = Button(window, text="Save", command=save_img, font=("Arial", 20), bg="black", fg="white", borderwidth=3, relief="raised")
-    button_save.place(x=170, y=20)
-
-    button_encrypt = Button(window, text="Encrypt", command=en_fun, font=("Arial", 20), bg="black", fg="white", borderwidth=3, relief="raised")
-    button_encrypt.place(x=150, y=620)
-
-    button_decrypt = Button(window, text="Decrypt", command=de_fun, font=("Arial", 20), bg="black", fg="white", borderwidth=3, relief="raised")
-    button_decrypt.place(x=450, y=620)
-
-    button_reset = Button(window, text="Reset", command=reset, font=("Arial", 20), bg="black", fg="white", borderwidth=3, relief="raised")
-    button_reset.place(x=800, y=620)
-
-    button_exit = Button(window, text="EXIT", command=exit_win, font=("Arial", 20), bg="black", fg="red", borderwidth=3, relief="raised")
-    button_exit.place(x=880, y=20)
-
-# Function to clear existing widgets in window
+# Function to clear all widgets from the window
 def clear_window():
     for widget in window.winfo_children():
         widget.destroy()
 
-# Function to exit the application
-def exit_win():
-    if mbox.askokcancel("Exit", "Do you want to exit?"):
-        window.destroy()
+# Function to show the image encryption page
+def show_image_encryption_page():
+    clear_window()
 
-# Function to initialize sign-up page on startup
+    # Label for the title
+    Label(window, text="Image Encryption & Decryption", font=("Arial", 30), fg="white", bg="black").pack(pady=20)
+
+    # Buttons for open, encrypt, decrypt, reset, and save operations
+    Button(window, text="Open Image", command=open_img, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised").pack(pady=10)
+    Button(window, text="Encrypt Image", command=en_fun, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised").pack(pady=10)
+    Button(window, text="Decrypt Image", command=de_fun, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised").pack(pady=10)
+    Button(window, text="Reset Image", command=reset, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised").pack(pady=10)
+    Button(window, text="Save Image", command=save_img, font=("Arial", 20), bg="#8A2BE2", fg="white", borderwidth=3, relief="raised").pack(pady=10)
+
+# Show the sign-up page initially
 create_signup_page()
 
-# Start main loop
-window.protocol("WM_DELETE_WINDOW", exit_win)
+# Main loop
 window.mainloop()
